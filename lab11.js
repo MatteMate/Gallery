@@ -54,7 +54,17 @@ function getLocation() {
         locationDisplay.textContent = "Геолокація не підтримується браузером.";
     }
 }
-window.addEventListener("load", getLocation);
+
+window.addEventListener('load', () => {
+    // Load location
+    getLocation();
+
+    // Render gallery from localStorage
+    images.forEach(src => {
+        const img = createImageElement(src, () => enterFullscreen(images.indexOf(src)));
+        gallery.appendChild(img);
+    });
+});
 
 function createImageElement(src, onClick) {
     const img = document.createElement('img');
@@ -187,11 +197,4 @@ clearGalleryBtn.addEventListener('click', () => {
     images = [];
     localStorage.removeItem('galleryImages');
     gallery.innerHTML = '';
-});
-
-window.addEventListener('load', () => {
-    images.forEach(src => {
-        const img = createImageElement(src, () => enterFullscreen(images.indexOf(src)));
-        gallery.appendChild(img);
-    });
 });
