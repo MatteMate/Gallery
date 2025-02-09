@@ -115,17 +115,72 @@ function createNavigationButton(text, className, onClick) {
 }
 
 function enterFullscreen(index) {
-    initializeFullscreen(index);
+    // Check if images array is empty
+    if (this.images.length === 0) {
+        console.error('No images available to display in fullscreen.');
+        return;
+    }
+
+    // Validate index
+    if (index < 0 || index >= this.images.length) {
+        console.error('Invalid image index.');
+        return;
+    }
+
+    // Check if fullscreen is already open
+    if (this.fullscreenDiv) {
+        console.warn('Fullscreen mode is already active.');
+        return;
+    }
+
+    this.currentIndex = index;
+    this.fullscreenDiv = document.createElement('div');
+    this.fullscreenDiv.classList.add('fullscreen');
+
+    const imgElement = this.createImageElement(this.images[this.currentIndex], null);
+    const exitBtn = this.createNavigationButton('Вийти', 'exit-fullscreen', () => this.exitFullscreen());
+    const prevBtn = this.createNavigationButton('<', 'prev-btn', () => this.navigateImage(-1));
+    const nextBtn = this.createNavigationButton('>', 'next-btn', () => this.navigateImage(1));
+
+    this.fullscreenDiv.append(imgElement, exitBtn, prevBtn, nextBtn);
+    document.body.appendChild(this.fullscreenDiv);
+    document.body.style.overflow = 'hidden';
 }
 
 function exitFullscreen() {
-    document.body.removeChild(fullscreenDiv);
+    if (!this.fullscreenDiv) {
+        console.warn('No fullscreen element to exit.');
+        return;
+    }
+
+    document.body.removeChild(this.fullscreenDiv);
     document.body.style.overflow = 'auto';
+    this.fullscreenDiv = null; // Reset the reference
 }
 
 function navigateImage(direction) {
-    currentIndex = (currentIndex + direction + images.length) % images.length;
-    fullscreenDiv.querySelector('img').src = images[currentIndex];
+    // Check if fullscreen is active
+    if (!this.fullscreenDiv) {
+        console.error('Fullscreen mode is not active.');
+        return;
+    }
+
+    // Check if images array is empty
+    if (this.images.length === 0) {
+        console.error('No images available to navigate.');
+        return;
+    }
+
+    // Update current index
+    this.currentIndex = (this.currentIndex + direction + this.images.length) % this.images.length;
+
+    // Update the image source
+    const imgElement = this.fullscreenDiv.querySelector('img');
+    if (imgElement) {
+        imgElement.src = this.images[this.currentIndex];
+    } else {
+        console.error('Image element not found in fullscreen mode.');
+    }
 }
 
 clearGalleryBtn.addEventListener('click', () => {
